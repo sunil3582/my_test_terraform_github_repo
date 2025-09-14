@@ -40,7 +40,24 @@ jobs:
           github-token: ${{ github.token }}
           script: |
             const { owner, repo } = context.repo;
-            const pr = (await github.paginate(github.rest.pulls.list, { owner, repo, state: 'open' }))
-              .find(p => p.head.sha === context.payload.workflow_run.head_sha);
-            if (!pr) core.setFailed('No matching PR for successful run'), process.exit(1);
-            await github.rest.pulls.merge({ owner, repo, pull_number: pr.number, merge_method: 'squash' });
+            const pr = context.payload.pull_request;
+            if (!pr) {
+              core.setFailed('No pull_request in payload');
+              return;
+            }
+
+            // Ensure checks on the PR head SHA are successful (optional if branch protection already enforces)
+            const ref = pr.head.sha;
+            const checks = await github.rest.checks.listForRef({ owner, repo, ref });
+            const failing = checks.data.check_runs.filter(r => !['success','skipped','neutral'].includes(r.conclusion));
+            if (failing.length) {
+              core.setFailed(`Checks not successful yet: ${failing.map(r=>r.name).join(', ')}`);
+              return;
+            }
+
+            await github.rest.pulls.merge({
+              owner,
+              repo,
+              pull_number: pr.number,
+              merge_method: "squash"
+            });
