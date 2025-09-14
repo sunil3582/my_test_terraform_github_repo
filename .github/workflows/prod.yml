@@ -33,10 +33,11 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const context = github.context;
+            const { owner, repo } = context.repo;
+            const pull_number = context.payload.pull_request.number;
             await context.github.rest.pulls.merge({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.payload.pull_request.number,
+                owner: owner,
+                repo: repo,
+                pull_number: pull_number,
                 merge_method: "squash",
             });
