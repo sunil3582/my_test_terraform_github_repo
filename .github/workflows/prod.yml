@@ -31,11 +31,11 @@ jobs:
       - name: Merge the PR
         uses: actions/github-script@v7
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
           script: |
             const { owner, repo } = context.repo;
             const pull_number = context.payload.pull_request.number;
-            await context.github.rest.pulls.merge({
+            await github.rest.pulls.merge({
                 owner: owner,
                 repo: repo,
                 pull_number: pull_number,
