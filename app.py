@@ -14,6 +14,12 @@ def add_numbers(left: int, right: int) -> int:
     """
     return left + right
 
+def subtract_numbers(left: int, right: int) -> int:
+    """Return the difference of two integers.
+
+    This tiny function gives us something deterministic to validate in CI.
+    """
+    return left - right
 
 def is_even(value: int) -> bool:
     """Return True if the provided integer is even, otherwise False."""
@@ -28,7 +34,7 @@ def run_smoke_checks() -> None:
     assert add_numbers(2, 3) == 5, "add_numbers failed"
     assert is_even(4) is True, "is_even failed for even number"
     assert is_even(5) is False, "is_even failed for odd number"
-
+    assert subtract_numbers(2, 3) == -1, "subtract_numbers failed"
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
